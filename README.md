@@ -1,1 +1,1 @@
-# GDGPS-2
+# gdgps-2
