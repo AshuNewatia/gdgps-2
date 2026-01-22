@@ -11,47 +11,57 @@
 <div class="container">
     <header>
         <h1>Expense Splitter</h1>
-        <button class="theme-btn" onclick="toggleTheme()">🌓</button>
+        <button onclick="toggleTheme()" style="width: auto; background: none; font-size: 24px;">🌓</button>
     </header>
 
     <div class="card">
-        <h3> 1. Add Members</h3>
-        <div style="display:flex; gap:10px">
-            <input type="text" id="nameInput" placeholder="Enter name... (Eg: Ashu)">
+        <h3>1. Add Members</h3>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <input type="text" id="nameInput" placeholder="Enter name (e.g. Ashu)">
             <button onclick="addMember()" id="add">+</button>
         </div>
         <div id="memberList" style="margin-top:10px"></div>
     </div>
 
     <div class="card">
-        <h3> 2. Add Expense</h3>
+        <h3>2. Add Expense</h3>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
-            <input type="text" id="descInput" placeholder="What for? (Eg: Food)">
+            <input type="text" id="descInput" placeholder="Spent On? (Eg: Food)">
             <input type="number" id="amtInput" placeholder="Amount (Rs)">
         </div>
+        
+        <label><strong>Who paid?</strong></label>
         <select id="payerSelect"></select>
+
+        <div>
+            <label style="font-weight: bold;">Split Between?</label>
+            <div id="involvementList" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                </div>
+        </div>
+
         <button onclick="addExpense()">Add Expense</button>
     </div>
 
-    <div class="results-grid">
-        <div class="card">
-            <h3>3. Net Balance</h3>
-            <div id="balanceDisplay"></div>
-        </div>
-        <div class="card">
-            <h3>4. Settlement</h3>
-            <div id="settleDisplay"></div>
-        </div>
+    <div class="card">
+        <h3>3. Net Balance</h3>
+        <div id="balanceDisplay"></div>
     </div>
 
     <div class="card">
-        <h3>5. Expense History</h3>
+        <h3>4. How to Settle</h3>
+        <div id="settleDisplay"></div>
+    </div>
+
+    <div class="card">
+        <h3>5. History</h3>
         <div id="historyDisplay"></div>
     </div>
 
-    <button onclick="clearAll()" id="reset">Reset All Data</button>
+    <button onclick="clearAll()" id="reset" >Reset All Data</button>
 </div>
 
-<script src="script.js"></script>
+<script src="script.js">
+    
+</script>
 </body>
 </html>
