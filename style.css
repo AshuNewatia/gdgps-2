@@ -106,22 +106,15 @@ button:hover{
 }
 
 .row { 
-    display: flex; 
-    justify-content: space-between; 
-    padding: 10px; 
-    border-bottom: 1px solid var(--border); }
+        display: flex; 
+        justify-content: space-between; 
+        padding: 8px 0; 
+        border-bottom: 1px solid var(--border); }
 .history-item { 
     display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    padding: 10px; 
-    background: var(--bg); 
-    border-radius: 8px; 
-    margin-bottom: 8px; }
-
-.pos { 
-    color: var(--green); 
-    font-weight: bold; }
-.neg { 
-    color: var(--red); 
-    font-weight: bold; }
+        justify-content: space-between; 
+        align-items: center; 
+        padding: 10px; 
+        background: var(--bg); 
+        border-radius: 8px; 
+        margin-bottom: 8px; }
