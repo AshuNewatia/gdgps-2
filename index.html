@@ -6,72 +6,52 @@
     <title>Expense Splitter</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="light">
+<body data-theme="light">
 
-    <nav class="nav">
-        <h1 class="nav-title">Expense Splitter</h1>
-        <button id="themeToggle" class="toggle-btn">🌙</button>
-    </nav>
+<div class="container">
+    <header>
+        <h1>Expense Splitter</h1>
+        <button class="theme-btn" onclick="toggleTheme()">🌓</button>
+    </header>
 
-    <div class="container">
-        <aside class="sidebar">
-            <div class="box">
-                <h2 class="title">1. GROUP MEMBERS</h2>
-                <div class="flex-row">
-                    <input type="text" id="memberName" placeholder="Add Name... (Eg: Ashu)" class="input">
-                    <button id="addMember" class="btn-main">+</button>
-                </div>
-                <div id="memberList" class="badge-list"></div>
-            </div>
-
-            <div class="box">
-            <h2 class="title">2. NEW EXPENSE</h2>
-                <input type="text" id="expName" placeholder="For what? (Eg: Food)" class="input">
-                <input type="number" id="expAmount" placeholder="Amount (Rs)" class="input">
-                
-                <label class="label">Paid By?</label>
-                <select id="expPayer" class="input"></select>
-
-                <label class="label">Split Between:</label>
-                <div id="splitList" class="checkbox-list"></div>
-
-                <button id="saveExpense" class="addbtn">Add Expense</button>
-            </div>
-        </aside>
-
-        <main class="content">
-            <div class="grid-2">
-                <div class="box highlight">
-                    <h2 class="title">BALANCE</h2>
-                    <div id="balanceDisplay" class="stack"></div>
-                </div>
-                <div class="box highlight">
-                    <h2 class="title">SETTLEMENT</h2>
-                    <div id="settleDisplay" class="stack"></div>
-                </div>
-            </div>
-
-            <div class="box">
-                <div class="flex-between">
-                    <h2 class="title">EXPENSE LOG</h2>
-                    <button id="resetAll" class="btn-text">Reset</button>
-                </div>
-                <div class="table-wrap">
-                    <table id="historyTable">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Paid by</th>
-                                <th>Cost</th>
-                            </tr>
-                        </thead>
-                        <tbody id="historyBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
+    <div class="card">
+        <h3> 1. Add Members</h3>
+        <div style="display:flex; gap:10px">
+            <input type="text" id="nameInput" placeholder="Enter name... (Eg: Ashu)">
+            <button onclick="addMember()" id="add">+</button>
+        </div>
+        <div id="memberList" style="margin-top:10px"></div>
     </div>
 
-    <script src="script.js"></script>
+    <div class="card">
+        <h3> 2. Add Expense</h3>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
+            <input type="text" id="descInput" placeholder="What for? (Eg: Food)">
+            <input type="number" id="amtInput" placeholder="Amount (Rs)">
+        </div>
+        <select id="payerSelect"></select>
+        <button onclick="addExpense()">Add Expense</button>
+    </div>
+
+    <div class="results-grid">
+        <div class="card">
+            <h3>3. Net Balance</h3>
+            <div id="balanceDisplay"></div>
+        </div>
+        <div class="card">
+            <h3>4. Settlement</h3>
+            <div id="settleDisplay"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>5. Expense History</h3>
+        <div id="historyDisplay"></div>
+    </div>
+
+    <button onclick="clearAll()" id="reset">Reset All Data</button>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
