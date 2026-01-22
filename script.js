@@ -98,7 +98,7 @@ for (let i = 0; i < members.length; i++) {
     balanceHtml += `
         <div class="row">
             <span>${name}</span>
-            <span>$${b.toFixed(2)}</span>
+            <span>₹${b.toFixed(2)}</span>
         </div>`;
 }
 document.getElementById('balanceDisplay').innerHTML = balanceHtml || "No data yet.";
@@ -112,7 +112,7 @@ document.getElementById('balanceDisplay').innerHTML = balanceHtml || "No data ye
         while (start < end) {
             let pay = Math.min(-debts[start].bal, debts[end].bal);
             if (pay > 0.01) {
-                settleHtml += `<div class="row"><span><b>${debts[start].name}</b> pays <b>${debts[end].name}</b></span> <b>$${pay.toFixed(2)}</b></div>`;
+                settleHtml += `<div class="row"><span><b>${debts[start].name}</b> pays <b>${debts[end].name}</b></span> <b>₹${pay.toFixed(2)}</b></div>`;
             }
             debts[start].bal += pay;
             debts[end].bal -= pay;
@@ -125,7 +125,7 @@ document.getElementById('balanceDisplay').innerHTML = balanceHtml || "No data ye
             let exp = expenses[i];
 historyHtml += `
     <div class="history-item">
-        <strong>${exp.desc}</strong> - $${Number(exp.amt).toFixed(2)}
+        <strong>${exp.desc}</strong> - ₹${Number(exp.amt).toFixed(2)}
         <button onclick="deleteExpense(${exp.id})" style="width:auto; padding:2px 8px; float:right; background:#ff0000;">Delete</button>
         <br><small>${exp.payer} paid.</small>
     </div>`;
