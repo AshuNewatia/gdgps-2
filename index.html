@@ -3,65 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Splitter</title>
+    <title>ExpenseSplitter</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body data-theme="light">
 
 <div class="container">
     <header>
-        <h1>Expense Splitter</h1>
-        <button onclick="toggleTheme()" style="width: auto; background: none; font-size: 24px;">🌓</button>
+        <h1>ExpenseSplitter</h1>
+        <button onclick="toggleTheme()" style="border:none; background:none; font-size: 24px; cursor:pointer">🌓</button>
     </header>
 
-    <div class="card">
-        <h3>1. Add Members</h3>
-        <div style="display:flex; gap:10px; align-items:center;">
-            <input type="text" id="nameInput" placeholder="Enter name (e.g. Ashu)">
-            <button onclick="addMember()" id="add">+</button>
-        </div>
-        <div id="memberList" style="margin-top:10px"></div>
-    </div>
-
-    <div class="card">
-        <h3>2. Add Expense</h3>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
-            <input type="text" id="descInput" placeholder="Spent On? (Eg: Food)">
-            <input type="number" id="amtInput" placeholder="Amount (Rs)">
-        </div>
-        
-        <label><strong>Who paid?</strong></label>
-        <select id="payerSelect"></select>
-
-        <div>
-            <label style="font-weight: bold;">Split Between?</label>
-            <div id="involvementList" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+    <div class="main-grid">
+        <div class="col">
+            <div class="card">
+                <h3>Group Members</h3>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="nameInput" placeholder="Enter Name">
+                    <button onclick="addMember()" style="width: 60px;">Add</button>
                 </div>
+                <div id="memberList"></div>
+            </div>
+
+            <div class="card">
+                <h3>Add Expense</h3>
+                <input type="text" id="descInput" placeholder="Spent on? (e.g., Food, Rent)">
+                <input type="number" id="amtInput" placeholder="Total Bill (₹)" oninput="updateAllocationTracker()">
+                <select id="payerSelect"></select>
+                
+                <label><small>Split between?</small></label>
+                <div id="involvementList" style="display:flex; flex-wrap:wrap; gap:8px; margin:8px 0;"></div>
+
+                <label><small>Split Method:</small></label>
+                <select id="splitMethod" onchange="Split()">
+                    <option value="equal">Equal Split</option>
+                    <option value="unequal">Unequal Split</option>
+                </select>
+
+                <div id="manualSplitArea" style="display:none">
+                    <div id="manualInputsContainer"></div>
+                    <div class="allocation-tracker" id="trackerBox">
+                        <div class="row" style="border:none; padding:2px 0;">
+                            <span>Total Money Allocated:</span> <span id="allocatedVal">₹0.00</span>
+                        </div>
+                        <div class="row" style="border:none; padding:2px 0;">
+                            <span>Money left to allocate:</span> <span id="diffVal">₹0.00</span>
+                        </div>
+                        <div id="statusMsg" style="text-align:center; margin-top:5px; font-size:0.75rem;"></div>
+                    </div>
+                </div>
+                <button onclick="addExpense()" style="margin-top:15px">Add Expense</button>
+            </div>
         </div>
 
-        <button onclick="addExpense()">Add Expense</button>
+        <div class="col">
+            <div class="card">
+                <h3>Balances & Settlements</h3>
+                <div id="balanceDisplay"></div>
+                <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
+                <div id="settlementReport"></div>
+            </div>
+
+            <div class="card">
+                <h3>Transaction History</h3>
+                <div id="historyDisplay"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="card">
-        <h3>3. Net Balance</h3>
-        <div id="balanceDisplay"></div>
+    <div class="reset-container">
+        <button id="btnReset" onclick="resetAllData()">Reset All Data</button>
+        <p style="color:var(--sub); font-size:0.8rem; margin-top:10px;">Warning: This will permanently delete all members, expenses, and history.</p>
     </div>
-
-    <div class="card">
-        <h3>4. How to Settle</h3>
-        <div id="settleDisplay"></div>
-    </div>
-
-    <div class="card">
-        <h3>5. History</h3>
-        <div id="historyDisplay"></div>
-    </div>
-
-    <button onclick="clearAll()" id="reset" >Reset All Data</button>
 </div>
 
-<script src="script.js">
-    
-</script>
+<script src="script.js"></script>
 </body>
 </html>
