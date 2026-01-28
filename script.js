@@ -1,148 +1,163 @@
-let members = [];
-let expenses = [];
-try {
-    members = JSON.parse(localStorage.getItem('members')) || [];
-    expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-    } catch (e) {
+let members = JSON.parse(localStorage.getItem('m_v7')) || [];
+let expenses = JSON.parse(localStorage.getItem('e_v7')) || [];
+let manualCache = {};
+
+function toggleTheme() {
+    const body = document.body;
+    const t = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    body.setAttribute('data-theme', t);
+    localStorage.setItem('theme', t);
+}
+function addMember() {
+    const name = document.getElementById('nameInput').value;
+    if (name === "") {
+        alert("Name cannot be empty!");
+    } else if (members.includes(name)) {
+        alert("Member already exists!");
+    } else {
+    members.push(name);
+    document.getElementById('nameInput').value = '';
+    render();
+        }
+    }
+function Split() {
+    const method = document.getElementById('splitMethod').value;
+    document.getElementById('manualSplitArea').style.display = (method === 'unequal') ? 'block' : 'none';
+    if(method === 'unequal') Manual();
+    }
+
+function Manual() {
+    const container = document.getElementById('manualInputsContainer');
+    const involved = Array.from(document.querySelectorAll('.mem-cb:checked')).map(cb => cb.value);
+    container.innerHTML = involved.map(name => `
+        <div class="manual-input-row">
+            <span style="flex:1">${name}</span>
+            <input type="number"
+                   class="manual-amt"
+                   data-name="${name}"
+                   value="${manualCache[name] ?? ''}"
+                   placeholder="0"
+                   oninput="Allocation()">
+        </div>
+    `).join('');
+    Allocation();
+}
+function Allocation() {
+    manualCache = {};
+    document.querySelectorAll('.manual-amt').forEach(i => {
+        manualCache[i.dataset.name] = parseFloat(i.value) || 0;
+    });
+    const totalBill = parseFloat(document.getElementById('amtInput').value) || 0;
+    let currentSum = Object.values(manualCache).reduce((a,b)=>a+b,0);
+    const diff = totalBill - currentSum;
+    document.getElementById('allocatedVal').innerText = `₹${currentSum.toFixed(2)}`;
+    document.getElementById('diffVal').innerText = `₹${Math.abs(diff).toFixed(2)}`;
+    const statusMsg = document.getElementById('statusMsg');   
+    statusMsg.innerHTML = '<b style="color:var(--green)">✔ Matched</b>';
+   
+}
+function addExpense() {
+    const describe = document.getElementById('descInput').value;
+    const Amt = parseFloat(document.getElementById('amtInput').value);
+    const payer = document.getElementById('payerSelect').value;
+    const method = document.getElementById('splitMethod').value;
+    if (!describe || isNaN(Amt) || !payer) 
+        return alert("Fill all details!");
+    let shares = {};
+    if (method === 'equal') {
+        involved.forEach(m => shares[m] = Amt / involved.length);
+        } else {
+        let sum = 0;
+        document.querySelectorAll('.manual-amt').forEach(i => {
+            shares[i.dataset.name] = parseFloat(i.value) || 0;
+            sum += shares[i.dataset.name];
+            });
+
+            if (sum !== Amt) 
+                return alert("Manual split does not match total bill!");
+        }
+        expenses.push({ id: Date.now(), desc, amt: Amt, payer, shares, type: 'expense', timestamp: new Date().toLocaleString() });
+        
+        document.getElementById('descInput').value = '';
+        document.getElementById('amtInput').value = '';
+        document.getElementById('manualSplitArea').style.display = 'none';
+        document.getElementById('splitMethod').value = 'equal';
+        render();
+    }
+
+function settleDirect(debtor, creditor, amount) {
+    let shares = {}; shares[creditor] = amount;
+    expenses.push({ id: Date.now(), desc: `Settle: ${debtor} → ${creditor}`, amt: amount, payer: debtor, shares, type: 'settlement', timestamp: new Date().toLocaleString() });
+    render();
+    }
+
+function resetAllData() {
+    if (confirm("ARE YOU SURE? This will permanently erase all members, transaction history, and balances. This action cannot be undone.")) {
+        localStorage.removeItem('m_v7');
+        localStorage.removeItem('e_v7');
         members = [];
         expenses = [];
-    }
-function toggleTheme() {
-        const body = document.body;
-        const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-        body.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-    }
-function addMember() {
-    const input = document.getElementById('nameInput');
-    const name = input.value.trim();
-    if (!name) {
-        alert("Please enter a name.");
-        return;
-        }
-  for(let i=0; i < members.length; i++) {
-        if(members[i].toLowerCase() === name.toLowerCase()) {
-            alert("This person is already in the group!");
-            return;
-            }
-        }
-  members.push(name);
-    input.value = '';
-    main();
-    }
-function addExpense() {
-        const desc = document.getElementById('descInput').value;
-        const amtValue = Number(document.getElementById('amtInput').value);
-        const payer = document.getElementById('payerSelect').value;
-    let involved = [];
-    let checkboxes = document.getElementsByClassName('member-checkbox');
-    for (let i = 0; i < checkboxes.length; i++) {
-            if (checkboxes[i].checked) {
-                involved.push(checkboxes[i].value);
-            }
-        }
-if (members.length === 0) {
-            alert("Add members first!");
-            return;
-        }
-if(desc && !isNaN(amtValue) && amtValue > 0 && payer) {
-            expenses.push({ 
-                desc: desc, 
-                amt: amtValue, 
-                payer: payer, 
-                involved: involved 
-            });
-            document.getElementById('descInput').value = '';
-            document.getElementById('amtInput').value = '';
-            main();
-        } else {
-            alert("Enter valid description and amount.");
+        render();
+        alert("All data has been wiped.");
         }
     }
-function main() {
-        localStorage.setItem('members', JSON.stringify(members));
-        localStorage.setItem('expenses', JSON.stringify(expenses));
-        let memberChipsHtml = "";
-        let dropdownHtml = `<option value="" disabled selected>Select Payer</option>`;
-        let involvementHtml = "";
-        for (let i = 0; i < members.length; i++) {
-            let name = members[i];
-            memberChipsHtml += `<span class="member-chip">${name}</span>`;
-            dropdownHtml += `<option value="${name}">${name}</option>`;
-            involvementHtml += `
-                <label style="background:#f0f0f0; padding:5px 10px; border-radius:5px; cursor:pointer">
-                    <input type="checkbox" class="member-checkbox" value="${name}" checked> ${name}
-                </label>`;
-        }
-        document.getElementById('memberList').innerHTML = memberChipsHtml;
-        document.getElementById('payerSelect').innerHTML = dropdownHtml;
-        document.getElementById('involvementList').innerHTML = involvementHtml;
-        let totals = {};
-        for (let i = 0; i < members.length; i++) {
-            totals[members[i]] = 0;
-        }
-        for (let i = 0; i < expenses.length; i++) {
-            let exp = expenses[i];
-            let splitList = exp.involved || members;
-            let share = Number(exp.amt) / splitList.length;
-            for (let j = 0; j < splitList.length; j++) {
-                totals[splitList[j]] -= share;
-            }
-            totals[exp.payer] += Number(exp.amt);
-        }
-let balanceHtml = "";
-for (let i = 0; i < members.length; i++) {
-    let name = members[i];
-    let b = totals[name];
 
-    balanceHtml += `
-        <div class="row">
-            <span>${name}</span>
-            <span>₹${b.toFixed(2)}</span>
-        </div>`;
-}
-document.getElementById('balanceDisplay').innerHTML = balanceHtml || "No data yet.";
-        let debts = [];
-        for (let i = 0; i < members.length; i++) {
-            debts.push({ name: members[i], bal: totals[members[i]] });
-        }
-        debts.sort((a, b) => a.bal - b.bal);
-        let settleHtml = "";
-        let start = 0, end = debts.length - 1;
-        while (start < end) {
-            let pay = Math.min(-debts[start].bal, debts[end].bal);
-            if (pay > 0.01) {
-                settleHtml += `<div class="row"><span><b>${debts[start].name}</b> pays <b>${debts[end].name}</b></span> <b>₹${pay.toFixed(2)}</b></div>`;
-            }
-            debts[start].bal += pay;
-            debts[end].bal -= pay;
-            if (debts[start].bal >= -0.01) start++;
-            if (debts[end].bal <= 0.01) end--;
-        }
-        document.getElementById('settleDisplay').innerHTML = settleHtml || "All settled!";
-        let historyHtml = "";
-        for (let i = expenses.length - 1; i >= 0; i--) {
-            let exp = expenses[i];
-historyHtml += `
-    <div class="history-item">
-        <strong>${exp.desc}</strong> - ₹${Number(exp.amt).toFixed(2)}
-        <button onclick="deleteExpense(${exp.id})" style="width:auto; padding:2px 8px; float:right; background:#ff0000;">Delete</button>
-        <br><small>${exp.payer} paid.</small>
-    </div>`;
-        }
-        document.getElementById('historyDisplay').innerHTML = historyHtml || "No history.";
+function render() {
+    localStorage.setItem('m_v7', JSON.stringify(members));
+    localStorage.setItem('e_v7', JSON.stringify(expenses));
+    document.getElementById('memberList').innerHTML = members.map(m => `<span class="member-chip">${m}</span>`).join('');
+    document.getElementById('payerSelect').innerHTML = `<option value="" disabled selected>Payer</option>` + members.map(m => `<option value="${m}">${m}</option>`).join('');
+    document.getElementById('involvementList').innerHTML = members.map(m => `
+            <label style="background:var(--bg); padding:4px 8px; border-radius:6px; font-size:0.75rem; border:1px solid var(--border); cursor:pointer">
+            <input type="checkbox" class="mem-cb" value="${m}" checked onchange="syncManualInputs()"> ${m}
+            </label>
+        `).join('');
+    let netBalances = {};
+    let matrix = {};
+    members.forEach(m => { netBalances[m] = 0; matrix[m] = {}; members.forEach(m2 => matrix[m][m2] = 0); });
+    expenses.forEach(exp => {
+    Object.keys(exp.shares).forEach(p => {
+            netBalances[p] -= exp.shares[p];
+            if (p !== exp.payer) matrix[p][exp.payer] += exp.shares[p];
+            });
+            netBalances[exp.payer] += exp.amt;
+        });
+        document.getElementById('balanceDisplay').innerHTML = members.map(m => `
+            <div class="row"><span>${m}</span><b style="color:${netBalances[m]>=0?'var(--green)':'var(--red)'}">${netBalances[m]>=0?'+':''}₹${netBalances[m].toFixed(2)}</b></div>
+        `).join('') || "No active members.";
+        members.forEach(m1 => {
+            members.forEach(m2 => {
+                if (m1 !== m2) {
+                    if (matrix[m1][m2] > matrix[m2][m1]) { matrix[m1][m2] -= matrix[m2][m1]; matrix[m2][m1] = 0; }
+                    else { matrix[m2][m1] -= matrix[m1][m2]; matrix[m1][m2] = 0; }
+                }
+            });
+        });
+        let reportHtml = "";
+        members.forEach(m => {
+            let details = "";
+            members.forEach(other => {
+                if (matrix[m][other] > 0.1) details += `<div class="row" style="border:none; font-size:0.85rem"><span>Owes ${other}: <b>₹${matrix[m][other].toFixed(2)}</b></span><button onclick="settleDirect('${m}', '${other}', ${matrix[m][other]})" style="width:auto; padding:2px 8px; font-size:0.75rem; background:var(--green); margin:0">Settle</button></div>`;
+            });
+            if (details) reportHtml += `<div class="settle-block"><div style="font-weight:bold; color:var(--accent)">${m}</div>${details}</div>`;
+        });
+        document.getElementById('settlementReport').innerHTML = reportHtml || "All clear.";
+        document.getElementById('historyDisplay').innerHTML = expenses.slice().reverse().map(e => `
+            <div class="history-item">
+                <button class="del-btn" onclick="deleteExpense(${e.id})">Delete</button>
+                <span class="history-tag" style="background:${e.type==='settlement'?'#dcfce7':'#dbeafe'}; color:${e.type==='settlement'?'#166534':'#1e40af'}">${e.type}</span>
+                <div style="font-weight:bold">${e.desc}</div>
+                <div style="font-size:0.75rem; color:var(--sub)">Paid by ${e.payer} • ${e.timestamp}</div>
+                <div style="margin-top:10px; font-size:0.8rem; color:var(--sub)">
+                    ${Object.entries(e.shares).map(([n, v]) => `<span><b>${n}:</b> ₹${v.toFixed(2)}</span>`).join(' | ')}
+                </div>
+            </div>
+        `).join('') || "History is empty.";
+     if (document.getElementById('splitMethod').value === 'manual') {
+        syncManualInputs();
     }
-    function clearAll() {
-        if(confirm("Wipe all data?")) {
-            localStorage.clear();
-            members = [];
-            expenses = [];
-            main();
-        }
-    }
-    function deleteExpense(id) {
-    expenses = expenses.filter(exp => exp.id !== id);
-    main(); 
 }
+
+function deleteExpense(id) { expenses = expenses.filter(e => e.id !== id); render(); }
     if(localStorage.getItem('theme')) document.body.setAttribute('data-theme', localStorage.getItem('theme'));
-    main();
+    render();
