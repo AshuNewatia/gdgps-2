@@ -57,33 +57,42 @@ function Allocation() {
    
 }
 function addExpense() {
-    const describe = document.getElementById('descInput').value;
+    const desc = document.getElementById('descInput').value;
     const Amt = parseFloat(document.getElementById('amtInput').value);
     const payer = document.getElementById('payerSelect').value;
     const method = document.getElementById('splitMethod').value;
-    if (!describe || isNaN(Amt) || !payer) 
+    const involved = Array.from(document.querySelectorAll('.mem-cb:checked'))
+                          .map(cb => cb.value);
+    if (!desc || isNaN(Amt) || !payer ||)
         return alert("Fill all details!");
     let shares = {};
     if (method === 'equal') {
         involved.forEach(m => shares[m] = Amt / involved.length);
-        } else {
+    } else {
         let sum = 0;
         document.querySelectorAll('.manual-amt').forEach(i => {
             shares[i.dataset.name] = parseFloat(i.value) || 0;
             sum += shares[i.dataset.name];
-            });
-
-            if (sum !== Amt) 
-                return alert("Manual split does not match total bill!");
-        }
-        expenses.push({ id: Date.now(), desc, amt: Amt, payer, shares, type: 'expense', timestamp: new Date().toLocaleString() });
-        
-        document.getElementById('descInput').value = '';
-        document.getElementById('amtInput').value = '';
-        document.getElementById('manualSplitArea').style.display = 'none';
-        document.getElementById('splitMethod').value = 'equal';
-        render();
+        });
+        if (Math.abs(sum - Amt) > 0.01)
+            return alert("Manual split does not match total bill!");
     }
+    expenses.push({
+        id: Date.now(),
+        desc,
+        amt: Amt,
+        payer,
+        shares,
+        type: 'expense',
+        timestamp: new Date().toLocaleString()
+    });
+    document.getElementById('descInput').value = '';
+    document.getElementById('amtInput').value = '';
+    document.getElementById('manualSplitArea').style.display = 'none';
+    document.getElementById('splitMethod').value = 'equal';
+
+    render();
+}
 
 function settleDirect(debtor, creditor, amount) {
     let shares = {}; shares[creditor] = amount;
