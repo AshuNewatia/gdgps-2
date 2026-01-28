@@ -61,11 +61,15 @@ function addExpense() {
     const Amt = parseFloat(document.getElementById('amtInput').value);
     const payer = document.getElementById('payerSelect').value;
     const method = document.getElementById('splitMethod').value;
+
     const involved = Array.from(document.querySelectorAll('.mem-cb:checked'))
                           .map(cb => cb.value);
-    if (!desc || isNaN(Amt) || !payer ||)
+
+    if (!desc || isNaN(Amt) || !payer || involved.length === 0)
         return alert("Fill all details!");
+
     let shares = {};
+
     if (method === 'equal') {
         involved.forEach(m => shares[m] = Amt / involved.length);
     } else {
@@ -74,9 +78,11 @@ function addExpense() {
             shares[i.dataset.name] = parseFloat(i.value) || 0;
             sum += shares[i.dataset.name];
         });
+
         if (Math.abs(sum - Amt) > 0.01)
             return alert("Manual split does not match total bill!");
     }
+
     expenses.push({
         id: Date.now(),
         desc,
@@ -86,6 +92,7 @@ function addExpense() {
         type: 'expense',
         timestamp: new Date().toLocaleString()
     });
+
     document.getElementById('descInput').value = '';
     document.getElementById('amtInput').value = '';
     document.getElementById('manualSplitArea').style.display = 'none';
@@ -93,6 +100,7 @@ function addExpense() {
 
     render();
 }
+
 
 function settleDirect(debtor, creditor, amount) {
     let shares = {}; shares[creditor] = amount;
